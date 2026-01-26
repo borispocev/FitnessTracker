@@ -1,0 +1,41 @@
+﻿@model IEnumerable<FitnessTracker.Domain.Entities.MealLog>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="mb-0">MealLogs</h3>
+        <div class="muted">Manage MealLogs</div>
+    </div>
+    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg me-1"></i>New MealLog</a>
+</div>
+
+
+<div class="glass p-3">
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Calories</th>
+                    <th>Meal Type</th>
+                    <th>Meal Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@u.User.Name</td>
+                        <td>@u.Calories</td>
+                        <td>@u.MealType</td>
+                        <td>@u.Date</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

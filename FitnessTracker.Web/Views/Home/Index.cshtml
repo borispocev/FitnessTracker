@@ -1,0 +1,365 @@
+﻿@model FitnessTracker.Web.Models.DashboardVm
+@using System.Globalization
+@{
+    ViewData["Title"] = "Dashboard";
+    var users = ViewBag.AllUsers as List<FitnessTracker.Domain.Entities.User> ?? new();
+    var u = Model.User;
+
+    // Chart data
+    var labels = string.Join(",", Model.WeightSeries.Select(p => $"\"{p.Date:MMM d}\""));
+    var weights = string.Join(",", Model.WeightSeries.Select(p => p.Weight.ToString(CultureInfo.InvariantCulture)));
+    var bmis = string.Join(",", Model.WeightSeries.Select(p => p.BMI.ToString(CultureInfo.InvariantCulture)));
+
+    // Calories breakdown chart
+    var mealLabels = string.Join(",", Model.CaloriesByMealType.Keys.Select(k => $"\"{k}\""));
+    var mealValues = string.Join(",", Model.CaloriesByMealType.Values.Select(v => v.ToString(CultureInfo.InvariantCulture)));
+}
+
+<style>
+    .dash-bg {
+        background: radial-gradient(1200px 700px at 30% 10%, rgba(65,105,225,0.22), transparent 60%), radial-gradient(900px 600px at 70% 35%, rgba(0,255,200,0.10), transparent 60%), radial-gradient(900px 600px at 40% 85%, rgba(255,120,0,0.12), transparent 60%);
+    }
+
+    .card-glass {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.10);
+        backdrop-filter: blur(10px);
+        border-radius: 18px;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.25);
+    }
+
+    .muted2 {
+        color: rgba(255,255,255,0.70);
+    }
+
+    .pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.92rem;
+    }
+
+    .mini {
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.70);
+    }
+
+    .soft-divider {
+        border-color: rgba(255,255,255,0.10) !important;
+    }
+
+    .list-row {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 12px 14px;
+    }
+</style>
+
+<div class="dash-bg p-3 p-md-4 card-glass mb-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div style="width:74px;height:74px;border-radius:999px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;">
+                <i class="bi bi-person-circle" style="font-size:2.4rem;"></i>
+            </div>
+
+            <div>
+           
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <h2 class="mb-0">@((u?.Name ?? "No User"))</h2>
+                    @if (users.Count > 1)
+                    {
+                        <form method="get" class="ms-md-3">
+                            <select class="form-select form-select-sm" name="userId" onchange="this.form.submit()" style="width:220px;">
+                                @foreach (var item in users)
+                                {
+                                    <option value="@item.Id" selected="@(u != null && item.Id == u.Id)">
+                                        @item.Name
+                                    </option>
+                                }
+                            </select>
+                        </form>
+                    }
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap mt-2">
+                    <span class="pill">Age: <b>@u.Age</b></span>
+                    <span class="pill">Weight: <b>@u.Weight</b> kg</span>
+                    <span class="pill">Height: <b>@Model.HeightDisplay</b></span>
+
+                    @if (Model.CurrentBmi is null || Model.CurrentBmi <= 0)
+                    {
+                        <span class="badge rounded-pill text-bg-secondary">BMI: —</span>
+                    }
+                    else
+                    {
+                        <span class="badge rounded-pill @Model.BmiPillClass">@Model.BmiLabel</span>
+                    }
+
+                </div>
+                <div class="mini mt-2">Goals: <span class="muted2">@((u?.Goals ?? "—"))</span></div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-light" href="/Workouts/Create"><i class="bi bi-plus-lg me-1"></i>New Workout</a>
+            <a class="btn btn-outline-light" href="/MealLogs/Create"><i class="bi bi-plus-lg me-1"></i>New Meal</a>
+            <a class="btn btn-primary" href="/Progress/Chart?userId=@(u?.Id)">
+                <i class="bi bi-graph-up me-1"></i>Progress
+            </a>
+
+        </div>
+    </div>
+</div>
+
+@if (u is null)
+{
+    <div class="card-glass p-4">
+        <h4>No users yet</h4>
+        <div class="muted2 mb-3">Create a user first, then come back to the dashboard.</div>
+        <a class="btn btn-primary" href="/Users/Create">Create User</a>
+    </div>
+    return;
+}
+
+<div class="row g-4">
+    <!-- Recent Workouts -->
+    <div class="col-lg-4">
+        <div class="card-glass p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Recent Workouts</h4>
+                <a class="btn btn-sm btn-outline-light" href="/Workouts">View all</a>
+            </div>
+
+            @if (Model.RecentWorkouts.Count == 0)
+            {
+                <div class="muted2">No workouts yet.</div>
+            }
+            else
+            {
+                <div class="d-grid gap-2">
+                    @foreach (var w in Model.RecentWorkouts)
+                    {
+                        <div class="list-row">
+                            <div class="d-flex justify-content-between">
+                                <div class="fw-semibold">Workout</div>
+                                <div class="mini">@w.Date.ToString("MMM d, HH:mm")</div>
+                            </div>
+                            <div class="mini mt-1">WorkoutId: @w.Id</div>
+                            <div class="mt-2">
+                                <a class="btn btn-sm btn-outline-light"
+                                   href="/Workouts/AddExercise?workoutId=@w.Id">
+                                    Add Exercise
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Meal Logs (today) -->
+    <div class="col-lg-5">
+        <div class="card-glass p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Meal Logs (Today)</h4>
+                <a class="btn btn-sm btn-outline-light" href="/MealLogs">View all</a>
+            </div>
+
+            @if (Model.TodayMeals.Count == 0)
+            {
+                <div class="muted2">No meals logged for today.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Meal Type</th>
+                                <th class="text-end">Calories</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var m in Model.TodayMeals)
+                            {
+                                <tr>
+                                    <td class="mini">@m.Date.ToString("HH:mm")</td>
+                                    <td class="fw-semibold">@m.MealType</td>
+                                    <td class="text-end fw-semibold">@m.Calories</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            <hr class="soft-divider" />
+
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="muted2">Total today</div>
+                <div class="fs-5 fw-semibold">@Model.TodayCalories cals</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Goals -->
+    <div class="col-lg-3">
+        <div class="card-glass p-4 h-100">
+            <h4 class="mb-3">Fitness Goals</h4>
+
+            @if (Model.Goals.Count == 0)
+            {
+                <div class="muted2">No goals set. Add goals in the User record.</div>
+            }
+            else
+            {
+                <div class="d-grid gap-3">
+                    @foreach (var g in Model.Goals)
+                    {
+                        <div>
+                            <div class="d-flex justify-content-between">
+                                <div class="fw-semibold">@g.Goal</div>
+                                <div class="mini">@g.StatusText</div>
+                            </div>
+                            <div class="progress mt-2" style="height:10px;">
+                                <div class="progress-bar" role="progressbar" style="width:@g.ProgressPct%"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            <hr class="soft-divider" />
+            <div class="mini">Tip: Use semicolons in Goals (e.g. “Lose 5kg; Run 10 miles/week”).</div>
+        </div>
+    </div>
+
+    <!-- Weight Progress -->
+    <div class="col-lg-7">
+        <div class="card-glass p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h4 class="mb-0">Weight Progress</h4>
+                <a class="btn btn-sm btn-outline-light" href="/Progress/Index">Open progress</a>
+            </div>
+            <div class="muted2 mb-3">Weight trend (and BMI if available)</div>
+
+            @if (Model.WeightSeries.Count < 2)
+            {
+                <div class="muted2">
+                    Not enough data to chart. Add weight logs in the Progress page.
+                </div>
+            }
+            else
+            {
+                <canvas id="weightChart" height="110"></canvas>
+            }
+        </div>
+    </div>
+
+    <!-- Daily Calorie Intake (breakdown) -->
+    <div class="col-lg-5">
+        <div class="card-glass p-4 h-100">
+            <h4 class="mb-2">Daily Calorie Intake</h4>
+            <div class="muted2 mb-3">Today’s calories by meal type</div>
+
+            @if (Model.CaloriesByMealType.Count == 0)
+            {
+                <div class="muted2">No meal logs for today.</div>
+            }
+            else
+            {
+                <canvas id="calChart" height="130"></canvas>
+            }
+        </div>
+    </div>
+
+    <!-- Today Summary -->
+    <div class="col-12">
+        <div class="card-glass p-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <h4 class="mb-1">Today Summary</h4>
+                    <div class="muted2">Workouts: <b>@Model.TodayWorkoutCount</b> • Calories: <b>@Model.TodayCalories</b></div>
+                </div>
+                <a class="btn btn-outline-light" href="/Home/DailySummary?userId=@u.Id&date=@DateTime.Now.ToString("yyyy-MM-dd")">
+                    Open details
+                </a>
+            </div>
+
+            <hr class="soft-divider" />
+
+            @if (Model.TodayExercises.Count == 0)
+            {
+                <div class="muted2">No exercises recorded today. Add exercises to today’s workout.</div>
+            }
+            else
+            {
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var ex in Model.TodayExercises)
+                    {
+                        <span class="pill">@ex</span>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        (function () {
+            // Weight + BMI chart (dual axis)
+            const labels = [@Html.Raw(labels)];
+            const weights = [@Html.Raw(weights)];
+            const bmis = [@Html.Raw(bmis)];
+
+            if (labels.length > 1 && document.getElementById('weightChart')) {
+                new Chart(document.getElementById('weightChart'), {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [
+                            { label: 'Weight (kg)', data: weights, yAxisID: 'yW', tension: 0.25 },
+                            { label: 'BMI', data: bmis, yAxisID: 'yB', tension: 0.25, borderDash: [6, 6] }
+                        ]
+                    },
+                    options: {
+                        plugins: { legend: { labels: { color: 'white' } } },
+                        scales: {
+                            x: { ticks: { color: 'rgba(255,255,255,0.7)' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+                            yW: { position: 'left', ticks: { color: 'rgba(255,255,255,0.7)' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+                            yB: { position: 'right', ticks: { color: 'rgba(255,255,255,0.7)' }, grid: { drawOnChartArea: false } }
+                        }
+                    }
+                });
+            }
+
+            // Calories bar
+            const mealLabels = [@Html.Raw(mealLabels)];
+            const mealValues = [@Html.Raw(mealValues)];
+
+            if (mealLabels.length > 0 && document.getElementById('calChart')) {
+                new Chart(document.getElementById('calChart'), {
+                    type: 'bar',
+                    data: { labels: mealLabels, datasets: [{ label: 'Calories', data: mealValues }] },
+                    options: {
+                        plugins: { legend: { labels: { color: 'white' } } },
+                        scales: {
+                            x: { ticks: { color: 'rgba(255,255,255,0.7)' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+                            y: { ticks: { color: 'rgba(255,255,255,0.7)' }, grid: { color: 'rgba(255,255,255,0.08)' } }
+                        }
+                    }
+                });
+            }
+        })();
+    </script>
+}

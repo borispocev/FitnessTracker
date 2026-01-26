@@ -1,0 +1,27 @@
+﻿@model List<FitnessTracker.Application.Interfaces.WeightProgressPoint>
+@{
+    var labels = string.Join(",", Model.Select(p => $"\"{p.Date:yyyy-MM-dd}\""));
+    var values = string.Join(",", Model.Select(p => p.Weight.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+}
+
+<h2>Progress (Weight series demo)</h2>
+
+<canvas id="chart" width="900" height="350"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('chart');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [@Html.Raw(labels)],
+        datasets: [{
+          label: 'Weight',
+          data: [@Html.Raw(values)],
+          tension: 0.25
+        }]
+      }
+    });
+</script>
+
+<a href="/">Back</a>

@@ -1,0 +1,62 @@
+﻿@model List<FitnessTracker.Application.Interfaces.WeightProgressPoint>
+@{
+    ViewData["Title"] = "Weight Chart";
+    int userId = (int)ViewBag.UserId;
+
+    var labels = string.Join(",", Model.Select(p => $"\"{p.Date:yyyy-MM-dd}\""));
+    var values = string.Join(",", Model.Select(p => p.Weight.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+    var weights = string.Join(",", Model.Select(p => p.Weight.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+    var bmis = string.Join(",", Model.Select(p => p.BMI.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+}
+
+<div class="glass p-4 mb-3">
+    <h3>Weight Progression</h3>
+
+    <canvas id="chart" height="120"></canvas>
+</div>
+
+<div class="glass p-4" style="max-width:720px;">
+    <h5 class="mb-3">Log new weight</h5>
+
+    <form method="post" action="/Progress/LogWeight" class="row g-3">
+        <input type="hidden" name="userId" value="@userId" />
+
+        <div class="col-md-6">
+            <label class="form-label">Date</label>
+            <input class="form-control" name="date" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Weight</label>
+            <input class="form-control" name="weight" type="number" step="0.1" />
+        </div>
+
+        <div class="col-12">
+            <button class="btn btn-primary">Save</button>
+            <a class="btn btn-outline-light ms-2" href="/Progress/Index">Back</a>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('chart');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [@Html.Raw(labels)],
+            datasets: [
+                { label: 'Weight (kg)', data: [@Html.Raw(weights)], yAxisID: 'yWeight', tension: 0.25 },
+                { label: 'BMI', data: [@Html.Raw(bmis)], yAxisID: 'yBmi', tension: 0.25, borderDash: [5, 5] }
+            ]
+        },
+        options: {
+            scales: {
+                yWeight: { type: 'linear', position: 'left', title: { display: true, text: 'Weight (kg)' } },
+                yBmi: { type: 'linear', position: 'right', title: { display: true, text: 'BMI' }, grid: { drawOnChartArea: false } }
+            }
+        }
+    });
+</script>
+

@@ -1,0 +1,44 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Add Exercise";
+    int workoutId = (int)ViewBag.WorkoutId;
+    var list = ViewBag.ExerciseSelectList as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>());
+}
+
+<div class="glass p-4" style="max-width:720px;">
+    <h3>Add Exercise to Workout</h3>
+    <div class="muted mb-3">Pick an exercise and set sets/reps.</div>
+
+    @if (!list.Any())
+    {
+        <div class="alert alert-warning">
+            No exercises found. Create exercises first in <a href="/Exercises" class="alert-link">Exercises</a>.
+        </div>
+    }
+
+    <form method="post" class="row g-3">
+        <input type="hidden" name="workoutId" value="@workoutId" />
+
+        <div class="col-12">
+            <label class="form-label">Exercise</label>
+            <select class="form-select" name="exerciseId" asp-items="list">
+                <option value="">-- select exercise --</option>
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Sets</label>
+            <input class="form-control" name="sets" type="number" value="3" min="1" />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Reps</label>
+            <input class="form-control" name="reps" type="number" value="10" min="1" />
+        </div>
+
+        <div class="col-12 d-flex gap-2">
+            <button class="btn btn-primary" type="submit" @(list.Any() ? "" : "disabled")>Add</button>
+            <a class="btn btn-outline-light" asp-action="Index">Back</a>
+        </div>
+    </form>
+</div>

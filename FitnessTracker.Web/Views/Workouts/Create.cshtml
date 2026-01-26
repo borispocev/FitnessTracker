@@ -1,0 +1,39 @@
+﻿@model FitnessTracker.Domain.Entities.Workout
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Create Workout";
+    var users = ViewBag.UserSelectList as SelectList;
+}
+
+<div class="glass p-4" style="max-width:720px;">
+    <h3>Create Workout</h3>
+    <div class="muted mb-3">Pick a user and set a date.</div>
+
+    <form method="post" class="row g-3">
+        <div class="col-12">
+            <label class="form-label">User</label>
+            <!-- THIS is the key: asp-for must be UserId -->
+            <select class="form-select" asp-for="UserId" asp-items="users">
+                <option value="">-- select user --</option>
+            </select>
+            <span class="text-danger" asp-validation-for="UserId"></span>
+        </div>
+
+        <div class="col-12">
+            <label class="form-label">Date</label>
+            <input class="form-control" asp-for="Date" type="datetime-local"
+                   value="@Model.Date.ToString("yyyy-MM-ddTHH:mm")" />
+            <span class="text-danger" asp-validation-for="Date"></span>
+        </div>
+
+        <div class="col-12 d-flex gap-2">
+            <button class="btn btn-primary">Save</button>
+            <a class="btn btn-outline-light" asp-action="Index">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,44 @@
+﻿@model IEnumerable<FitnessTracker.Domain.Entities.Workout>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="mb-0">Workouts</h3>
+        <div class="muted">Manage workouts</div>
+    </div>
+    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg me-1"></i>New Workout</a>
+</div>
+
+
+<div class="glass p-3">
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Date</th>
+                    @* <th>Actions</th> *@
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@u.User.Name</td>
+                        <td>@u.Date</td>
+                        @* <td>
+                            <a asp-action="Edit" asp-route-id="@u.Id">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@u.Id">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@u.Id">Delete</a> |
+                            <a asp-action="AddExercise" asp-route-workoutId="@u.Id">Add Exercise</a>
+                        </td> *@
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

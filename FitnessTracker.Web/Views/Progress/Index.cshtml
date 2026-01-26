@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "Progress";
+    var users = ViewBag.Users as List<FitnessTracker.Domain.Entities.User> ?? new();
+}
+
+<div class="glass p-4" style="max-width:720px;">
+    <h3>Progress</h3>
+    <div class="muted mb-3">Choose a user to view weight progression.</div>
+
+    <form method="get" action="/Progress/Chart" class="d-flex gap-2">
+        <select class="form-select" name="userId">
+            @foreach (var u in users)
+            {
+                <option value="@u.Id">@u.Name</option>
+            }
+        </select>
+        <button class="btn btn-primary">View Chart</button>
+    </form>
+</div>

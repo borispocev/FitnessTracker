@@ -1,0 +1,40 @@
+﻿@model List<FitnessTracker.Domain.Entities.User>
+@{
+    ViewData["Title"] = "Users";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="mb-0">Users</h3>
+        <div class="muted">Manage users</div>
+    </div>
+    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg me-1"></i>New User</a>
+</div>
+
+<div class="glass p-3">
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Weight</th>
+                    <th>Height</th>
+                    <th>Goals</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@u.Name</td>
+                        <td>@u.Age</td>
+                        <td>@u.Weight</td>
+                        <td>@u.Height</td>
+                        <td class="muted">@u.Goals</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

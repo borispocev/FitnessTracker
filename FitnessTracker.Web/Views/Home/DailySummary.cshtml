@@ -1,0 +1,25 @@
+﻿@model FitnessTracker.Application.Interfaces.DailySummaryDto
+
+<h2>Daily Summary</h2>
+
+<p><b>UserId:</b> @Model.UserId</p>
+<p><b>Date:</b> @Model.Date.ToString("yyyy-MM-dd")</p>
+<p><b>Total calories:</b> @Model.TotalCalories</p>
+<p><b>Workout count:</b> @Model.WorkoutCount</p>
+
+<p><b>Exercises done:</b></p>
+@if (Model.ExercisesDone.Count == 0)
+{
+    <p>None</p>
+}
+else
+{
+    <ul>
+        @foreach (var e in Model.ExercisesDone)
+        {
+            <li>@e</li>
+        }
+    </ul>
+}
+
+<a href="/">Back</a>

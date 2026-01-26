@@ -1,0 +1,61 @@
+﻿@model List<FitnessTracker.Application.Interfaces.FoodSearchResult>
+@{
+    ViewData["Title"] = "Food Search";
+    var q = ViewBag.Query as string ?? "";
+}
+
+<div class="glass p-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div>
+            <h3 class="mb-1">Food Search</h3>
+            <div class="muted">OpenFoodFacts (transformed: kcal/100g, brand, image)</div>
+        </div>
+        <form method="post" class="d-flex gap-2">
+            <input class="form-control" name="q" value="@q" placeholder="Try: yogurt, oats, chocolate..." style="min-width:280px;" />
+            <button class="btn btn-primary"><i class="bi bi-search me-1"></i>Search</button>
+        </form>
+    </div>
+
+    <hr class="border-secondary" />
+
+    @if (Model.Count == 0)
+    {
+        @if (!string.IsNullOrWhiteSpace(q))
+        {
+            <div class="alert alert-warning mt-3">
+                The food API did not respond in time (or returned an error). Try again or use a different keyword.
+            </div>
+        }
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th style="width:80px;">Image</th>
+                        <th>Product</th>
+                        <th>Brand</th>
+                        <th class="text-end">Kcal / 100g</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(r.ImageUrl))
+                                {
+                                    <img src="@r.ImageUrl" class="rounded" style="width:64px;height:64px;object-fit:cover;" />
+                                }
+                            </td> 
+                            <td class="fw-semibold">@r.Name</td>
+                            <td class="muted">@r.Brand</td>
+                            <td class="text-end fw-semibold">@r.KcalPer100g Kcal</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
