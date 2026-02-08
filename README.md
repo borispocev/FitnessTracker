@@ -1,6 +1,6 @@
 Fitness Tracking App
 
-A full-stack fitness tracking web application built with ASP.NET Core (.NET 8) following **Onion Architecture** principles.
+A full-stack fitness tracking web application built with ASP.NET Core (.NET 8) following **Onion Architecture** principles..
 
 Architecture
 - Domain
