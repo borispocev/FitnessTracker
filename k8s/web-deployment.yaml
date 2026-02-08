@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fitnesstracker-web
+  namespace: fitnesstracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fitnesstracker-web
+  template:
+    metadata:
+      labels:
+        app: fitnesstracker-web
+    spec:
+      containers:
+        - name: web
+          image: borispocev/fitnesstracker-web:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: fitnesstracker-config
+                  key: ASPNETCORE_ENVIRONMENT
+            - name: Api__BaseUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: fitnesstracker-config
+                  key: API_BASE_URL
+            - name: ConnectionStrings__DefaultConnection
+              valueFrom:
+                secretKeyRef:
+                  name: fitnesstracker-secrets
+                  key: ConnectionStrings__DefaultConnection
