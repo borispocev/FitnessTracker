@@ -87,9 +87,9 @@
                 </div>
 
                 <div class="d-flex gap-2 flex-wrap mt-2">
-                    <span class="pill">Age: <b>@u.Age</b></span>
-                    <span class="pill">Weight: <b>@u.Weight</b> kg</span>
-                    <span class="pill">Height: <b>@Model.HeightDisplay</b></span>
+                    <span class="pill">Age: <b>@(u != null ? u.Age.ToString() : "—")</b></span>
+                    <span class="pill">Weight: <b>@(u != null ? u.Weight.ToString(CultureInfo.InvariantCulture) : "—")</b> kg</span>
+                    <span class="pill">Height: <b>@(Model.HeightDisplay ?? "—")</b></span>
 
                     @if (Model.CurrentBmi is null || Model.CurrentBmi <= 0)
                     {
